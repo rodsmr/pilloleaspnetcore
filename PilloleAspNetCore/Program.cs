@@ -8,9 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Scoped: instanza cambia ad ogni richiesta HTTP ma,
 // all'interno della stessa richiesta HTTP, l'istanza sarà la stessa
-builder.Services.AddScoped<MyService>();
+//builder.Services.AddScoped<MyService>();
 
-// Transient
+// Transient: instanza sarà sempre diversa
+builder.Services.AddTransient<MyService>();
+
 var app = builder.Build();
 
 // Middleware
