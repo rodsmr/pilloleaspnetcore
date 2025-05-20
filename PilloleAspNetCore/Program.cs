@@ -11,12 +11,17 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Services.AddScoped<MyService>();
 
 // Transient: instanza sarà sempre diversa
-builder.Services.AddTransient<MyService>();
+//builder.Services.AddTransient<MyService>();
+
+// KeyedScoped: comodo se voglio differenziare implementazioni di un servizio
+// 1. devo dare un nome all'istanza
+// 2. devo decorare la classe MyService con l'attributo KeyedService
+builder.Services.AddKeyedScoped<MyService>("myService");
 
 var app = builder.Build();
 
 // Middleware
-app.MapGet("/", (MyService myService) => 
+app.MapGet("/", ([FromKeyedServices("myService")]MyService myService) => 
 {
     // var myService = new MyService(); // riga rimossa dopo aver registrato il servizio
     // il servizio ora viene iniettato
