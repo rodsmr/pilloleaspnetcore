@@ -1,10 +1,15 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Servizi
+// questa riga mi evita di creare un oggetto MyService ogni volta che viene chiamato il servizio
 
 // Singleton: instanza sarà sempre la stessa per tutta la vita dell'applicazione
-builder.Services.AddSingleton<MyService>(); // questa riga mi evita di creare un oggetto MyService ogni volta che viene chiamato il servizio
-// Scoped
+//builder.Services.AddSingleton<MyService>(); 
+
+// Scoped: instanza cambia ad ogni richiesta HTTP ma,
+// all'interno della stessa richiesta HTTP, l'istanza sarà la stessa
+builder.Services.AddScoped<MyService>();
+
 // Transient
 var app = builder.Build();
 
