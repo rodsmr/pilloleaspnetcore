@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components.Forms;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Servizi
@@ -22,17 +24,23 @@ var app = builder.Build();
 
 // Middleware: pezzo di codice che viene eseguito per ogni richiesta HTTP, decidendo se
 // interrompere la richiesta o farla proseguire: pipeline di esecuzione delle richieste HTTP
-app.Use(async(context, next) => {
 
-    if (context.Request.Headers["X-MyHeader"].Contains("test"))
-    {
-        // Interrompe la richiesta e restituisce un messaggio
-        await context.Response.WriteAsync("Richiesta interrotta!");
-        return;
-    }
+// Middleware mod. 1
+//app.Use(async(context, next) => {
 
-    await next(context);
-});
+//    if (context.Request.Headers["X-MyHeader"].Contains("test"))
+//    {
+//        // Interrompe la richiesta e restituisce un messaggio
+//        await context.Response.WriteAsync("Richiesta interrotta!");
+//        return;
+//    }
+
+//    await next(context);
+//});
+
+// Middleware mod. 2: utilizzare una classe
+app.UseMiddleware<MyMiddleware>();
+
 
 app.MapGet("/", ([FromKeyedServices("myService")]MyService myService) => 
 {
@@ -59,3 +67,23 @@ public class MyService
     }
 }
 #endregion
+
+class MyMiddleware
+{
+    private readonly RequestDelegate _next;
+    public MyMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
+    public async Task InvokeAsync(HttpContext context)
+    {
+        // Logica del middleware
+        if (context.Request.Headers["X-MyHeader"].Contains("test"))
+        {
+            // Interrompe la richiesta e restituisce un messaggio
+            await context.Response.WriteAsync("Richiesta interrotta!");
+            return;
+        }
+        await _next(context);
+    }
+}
