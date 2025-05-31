@@ -20,7 +20,20 @@ builder.Services.AddKeyedScoped<MyService>("myService");
 
 var app = builder.Build();
 
-// Middleware
+// Middleware: pezzo di codice che viene eseguito per ogni richiesta HTTP, decidendo se
+// interrompere la richiesta o farla proseguire: pipeline di esecuzione delle richieste HTTP
+app.Use(async(context, next) => {
+
+    if (context.Request.Headers["X-MyHeader"].Contains("test"))
+    {
+        // Interrompe la richiesta e restituisce un messaggio
+        await context.Response.WriteAsync("Richiesta interrotta!");
+        return;
+    }
+
+    await next(context);
+});
+
 app.MapGet("/", ([FromKeyedServices("myService")]MyService myService) => 
 {
     // var myService = new MyService(); // riga rimossa dopo aver registrato il servizio
