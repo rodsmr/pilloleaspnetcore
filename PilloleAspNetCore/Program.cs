@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,13 +11,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Posso utilizzare anhce una lambda per leggere i dati dall'appsettings.json
 // In questo modo posso anche leggere i dati innestati, che non devono essere nullable (!)
-builder.Services.Configure<ConfigurationObject>(
-    options =>
-    {
-        options.Name = builder.Configuration["ConfigurationObject:Name"]!;
-        options.Value = builder.Configuration["ConfigurationObject:Value"]!;
-    }
-);
+//builder.Services.Configure<ConfigurationObject>(
+//    options =>
+//    {
+//        options.Name = builder.Configuration["ConfigurationObject:Name"]!;
+//        options.Value = builder.Configuration["ConfigurationObject:Value"]!;
+//    }
+//);
 
 // Servizi
 // questa riga mi evita di creare un oggetto MyService ogni volta che viene chiamato il servizio
@@ -26,7 +27,7 @@ builder.Services.Configure<ConfigurationObject>(
 
 // Scoped: instanza cambia ad ogni richiesta HTTP ma,
 // all'interno della stessa richiesta HTTP, l'istanza sarà la stessa
-//builder.Services.AddScoped<MyService>();
+builder.Services.AddScoped<MyService>();
 
 // Transient: instanza sarà sempre diversa
 //builder.Services.AddTransient<MyService>();
@@ -34,7 +35,9 @@ builder.Services.Configure<ConfigurationObject>(
 // KeyedScoped: comodo se voglio differenziare implementazioni di un servizio
 // 1. devo dare un nome all'istanza
 // 2. devo decorare la classe MyService con l'attributo KeyedService
-builder.Services.AddKeyedScoped<MyService>("myService");
+//builder.Services.AddKeyedScoped<MyService>("myService");
+
+builder.Services.AddLogging(); // Aggiungo il servizio di logging
 
 var app = builder.Build();
 
@@ -105,9 +108,20 @@ app.UseMyMiddleware();
 //    return $"Hello World! {configurationObject.Name} - {configurationObject.Value}";
 //});
 
-app.MapGet("/", (IOptions<ConfigurationObject> configurationOptions) =>
+//app.MapGet("/", (IOptions<ConfigurationObject> configurationOptions) =>
+//{
+//    return $"Hello World! {configurationOptions.Value.Name} - {configurationOptions.Value.Value}";
+//});
+
+// ILogger: chi scrive i log dell'applicazione
+// ILoggerFactory: crea una nuova istanza dei logger
+// ILoggerProvider: definisce dove e come verrà scritto il log (file, console, database, ecc.)
+// DI: AddLogging(). Permette poi di instanziare facilmente le cose
+
+app.MapGet("/", (ILoggerFactory loggerFactory) =>
 {
-    return $"Hello World! {configurationOptions.Value.Name} - {configurationOptions.Value.Value}";
+    var logger = loggerFactory.CreateLogger("MyLogger");
+    logger.LogInformation("Hello World!");
 });
 
 app.Run();
