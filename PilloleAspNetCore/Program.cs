@@ -1,6 +1,12 @@
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Posso utilizzare anche i Services, per mappare su un oggetto: OPTION PATTERN
+builder.Services.Configure<ConfigurationObject>(
+    builder.Configuration.GetSection("ConfigurationObject")
+);
 
 // Servizi
 // questa riga mi evita di creare un oggetto MyService ogni volta che viene chiamato il servizio
@@ -79,14 +85,19 @@ app.UseMyMiddleware();
 //});
 
 // Sempre utilizzando SECTION, posso fare binding su un oggetto
-var configurationObject = new ConfigurationObject();
-builder.Configuration
-    .GetSection("ConfigurationObject")
-    .Bind(configurationObject);
+//var configurationObject = new ConfigurationObject();
+//builder.Configuration
+//    .GetSection("ConfigurationObject")
+//    .Bind(configurationObject);
 
-app.MapGet("/", (IConfiguration config) =>
+//app.MapGet("/", (IConfiguration config) =>
+//{
+//    return $"Hello World! {configurationObject.Name} - {configurationObject.Value}";
+//});
+
+app.MapGet("/", (IOptions<ConfigurationObject> configurationOptions) =>
 {
-    return $"Hello World! {configurationObject.Name} - {configurationObject.Value]}";
+    return $"Hello World! {configurationOptions.Value.Name} - {configurationOptions.Value.Value}";
 });
 
 app.Run();
