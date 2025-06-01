@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Runtime.CompilerServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -118,11 +119,9 @@ app.UseMyMiddleware();
 // ILoggerProvider: definisce dove e come verrà scritto il log (file, console, database, ecc.)
 // DI: AddLogging(). Permette poi di instanziare facilmente le cose
 
-app.MapGet("/", (ILogger<Program> logger) =>
+app.MapGet("/", (ILogger<Program> logger, MyService service) =>
 {
-    logger.LogInformation("Hello World!");
-
-    return "Hello workes";
+    return $"Hello workes! {service.GetValue()}";
 });
 
 app.Run();
@@ -136,15 +135,19 @@ record ConfigurationObject
 #region Service
 public class MyService
 {
+    private readonly ILogger<MyService> _logger;
     private static int value = 0;
 
-    public MyService()
+    public MyService(ILogger<MyService> logger)
     {
+        _logger = logger;
         value++;
     }
 
     public int GetValue()
     {
+        _logger.LogInformation("Value: {Value}", value); // log strutturato
+
         return value;
     }
 }
