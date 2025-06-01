@@ -56,16 +56,35 @@ app.UseMyMiddleware();
 
 // Inietto IConfiguration per leggere le configurazioni: è un registrata di default.
 // Leggo le configurazioni come se fossero dizionari
-app.MapGet("/", (IConfiguration config) =>
-{
-    return $"Hello World! {config["MyConfiguration"]}";
-});
+//app.MapGet("/", (IConfiguration config) =>
+//{
+//    return $"Hello World! {config["MyConfiguration"]}";
+//});
 
 // appsettings.Development.json dipende da ASPNETCORE_ENVIRONMENT (variabile di ambiente)
 // Altro modo per le configurazsioni sono gli UserSecrets: project > Manage User Secrets.
 // Sono salvati in AppData del PC e non vanno nel repo
 
+// Altro modo sono le variabili di ambiente, definite in launchSettings.json
+//app.MapGet("/", (IConfiguration config) =>
+//{
+//    return $"Hello World! {config["MY_CONFIGURATION"]}";
+//});
+
+// Posso anche utilizzare SECTION per mappare le configurazioni su delle classi
+app.MapGet("/", (IConfiguration config) =>
+{
+    var configurationSection = config.GetSection("ConfigurationObject");
+    return $"Hello World! {configurationSection["Name"]} - {configurationSection["Value"]}";
+});
+
 app.Run();
+
+record ConfigurationObject
+{
+    public string Name { get; set; }
+    public string Value { get; set; }
+}
 
 #region Service
 public class MyService
