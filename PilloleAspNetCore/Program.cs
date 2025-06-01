@@ -25,7 +25,7 @@ var app = builder.Build();
 // Middleware: pezzo di codice che viene eseguito per ogni richiesta HTTP, decidendo se
 // interrompere la richiesta o farla proseguire: pipeline di esecuzione delle richieste HTTP
 
-// Middleware mod. 1
+// Middleware modo 1
 //app.Use(async(context, next) => {
 
 //    if (context.Request.Headers["X-MyHeader"].Contains("test"))
@@ -38,8 +38,13 @@ var app = builder.Build();
 //    await next(context);
 //});
 
-// Middleware mod. 2: utilizzare una classe
-app.UseMiddleware<MyMiddleware>();
+// Middleware modo 2: utilizzare una classe
+//app.UseMiddleware<MyMiddleware>();
+
+// Middleware tips: per pulizia, UseMiddleware<MyMiddleware>() va in exentesion method
+// tramite classe statica MyMiddlewareExtensions. Quindi non userò più UseMiddleware<MyMiddleware>(),
+// bensì app.UseMyMiddleware();
+app.UseMyMiddleware();
 
 
 app.MapGet("/", ([FromKeyedServices("myService")]MyService myService) => 
@@ -85,5 +90,13 @@ class MyMiddleware
             return;
         }
         await _next(context);
+    }
+}
+
+static class MyMiddlewareExtensions
+{
+    public static IApplicationBuilder UseMyMiddleware(this IApplicationBuilder builder)
+    {
+        return builder.UseMiddleware<MyMiddleware>();
     }
 }
