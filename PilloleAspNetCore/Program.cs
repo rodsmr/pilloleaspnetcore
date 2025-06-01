@@ -4,8 +4,18 @@ using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 // Posso utilizzare anche i Services, per mappare su un oggetto: OPTION PATTERN
+//builder.Services.Configure<ConfigurationObject>(
+//    builder.Configuration.GetSection("ConfigurationObject")
+//);
+
+// Posso utilizzare anhce una lambda per leggere i dati dall'appsettings.json
+// In questo modo posso anche leggere i dati innestati, che non devono essere nullable (!)
 builder.Services.Configure<ConfigurationObject>(
-    builder.Configuration.GetSection("ConfigurationObject")
+    options =>
+    {
+        options.Name = builder.Configuration["ConfigurationObject:Name"]!;
+        options.Value = builder.Configuration["ConfigurationObject:Value"]!;
+    }
 );
 
 // Servizi
