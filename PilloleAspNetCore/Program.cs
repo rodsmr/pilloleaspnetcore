@@ -22,7 +22,8 @@ builder.Services.AddKeyedScoped<MyService>("myService");
 
 var app = builder.Build();
 
-// Middleware: pezzo di codice che viene eseguito per ogni richiesta HTTP, decidendo se
+// Middleware
+// Pezzo di codice che viene eseguito per ogni richiesta HTTP, decidendo se
 // interrompere la richiesta o farla proseguire: pipeline di esecuzione delle richieste HTTP
 
 // Middleware modo 1
@@ -46,13 +47,23 @@ var app = builder.Build();
 // bensì app.UseMyMiddleware();
 app.UseMyMiddleware();
 
+//app.MapGet("/", ([FromKeyedServices("myService")] MyService myService) =>
+//{
+//    // var myService = new MyService(); // riga rimossa dopo aver registrato il servizio
+//    // il servizio ora viene iniettato
+//    return $"Hello World! {myService.GetValue()}";
+//});
 
-app.MapGet("/", ([FromKeyedServices("myService")]MyService myService) => 
+// Inietto IConfiguration per leggere le configurazioni: è un registrata di default.
+// Leggo le configurazioni come se fossero dizionari
+app.MapGet("/", (IConfiguration config) =>
 {
-    // var myService = new MyService(); // riga rimossa dopo aver registrato il servizio
-    // il servizio ora viene iniettato
-    return $"Hello World! {myService.GetValue()}";
+    return $"Hello World! {config["MyConfiguration"]}";
 });
+
+// appsettings.Development.json dipende da ASPNETCORE_ENVIRONMENT (variabile di ambiente)
+// Altro modo per le configurazsioni sono gli UserSecrets: project > Manage User Secrets.
+// Sono salvati in AppData del PC e non vanno nel repo
 
 app.Run();
 
