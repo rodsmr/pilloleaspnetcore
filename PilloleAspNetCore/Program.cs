@@ -72,10 +72,21 @@ app.UseMyMiddleware();
 //});
 
 // Posso anche utilizzare SECTION per mappare le configurazioni su delle classi
+//app.MapGet("/", (IConfiguration config) =>
+//{
+//    var configurationSection = config.GetSection("ConfigurationObject");
+//    return $"Hello World! {configurationSection["Name"]} - {configurationSection["Value"]}";
+//});
+
+// Sempre utilizzando SECTION, posso fare binding su un oggetto
+var configurationObject = new ConfigurationObject();
+builder.Configuration
+    .GetSection("ConfigurationObject")
+    .Bind(configurationObject);
+
 app.MapGet("/", (IConfiguration config) =>
 {
-    var configurationSection = config.GetSection("ConfigurationObject");
-    return $"Hello World! {configurationSection["Name"]} - {configurationSection["Value"]}";
+    return $"Hello World! {configurationObject.Name} - {configurationObject.Value]}";
 });
 
 app.Run();
