@@ -118,10 +118,11 @@ app.UseMyMiddleware();
 // ILoggerProvider: definisce dove e come verrà scritto il log (file, console, database, ecc.)
 // DI: AddLogging(). Permette poi di instanziare facilmente le cose
 
-app.MapGet("/", (ILoggerFactory loggerFactory) =>
+app.MapGet("/", (ILogger<Program> logger) =>
 {
-    var logger = loggerFactory.CreateLogger("MyLogger");
     logger.LogInformation("Hello World!");
+
+    return "Hello workes";
 });
 
 app.Run();
